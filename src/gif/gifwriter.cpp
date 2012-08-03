@@ -106,7 +106,7 @@ bool exportGif(const QImage &img, const QString &fileName)
     gif->ImageCount = 1;
     EGifPutScreenDesc(gif, image.width(), image.height(), 256, 0, &cmap);
     if (bgcolor >= 0) {
-        char extension[] = { 1, 0, 0, bgcolor };
+        unsigned char extension[] = { 1, 0, 0, (unsigned char) bgcolor };
         EGifPutExtension(gif, GRAPHICS_EXT_FUNC_CODE, 4, extension);
     }
     EGifPutImageDesc(gif, 0, 0, image.width(), image.height(), 0, &cmap);
