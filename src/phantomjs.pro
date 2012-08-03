@@ -56,7 +56,7 @@ OTHER_FILES += \
     repl.js
 
 include(gif/gif.pri)
-include(mongoose/mongoose.pri)
+LIBS += -lmongoose
 include(linenoise/linenoise.pri)
 include(qcommandline/qcommandline.pri)
 

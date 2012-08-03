@@ -32,7 +32,7 @@
 #include "webserver.h"
 
 #include "encoding.h"
-#include "mongoose/mongoose.h"
+#include <mongoose.h>
 
 #include <QByteArray>
 #include <QHostAddress>
