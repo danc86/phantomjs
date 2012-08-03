@@ -35,7 +35,7 @@
 #include <QMutex>
 #include <QSemaphore>
 
-#include "mongoose.h"
+#include <mongoose.h>
 
 class Config;
 
