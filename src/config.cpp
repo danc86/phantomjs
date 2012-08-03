@@ -168,7 +168,11 @@ void Config::loadJsonFile(const QString &filePath)
     // Add this object to the global scope
     webPage.mainFrame()->addToJavaScriptWindowObject("config", this);
     // Apply the JSON config settings to this very object
-    webPage.mainFrame()->evaluateJavaScript(configurator.arg(jsonConfig), QString());
+    webPage.mainFrame()->evaluateJavaScript(configurator.arg(jsonConfig)
+#ifdef HAVE_QT_JS_STACK_TRACES
+            , QString()
+#endif
+            );
 }
 
 QString Config::helpText() const

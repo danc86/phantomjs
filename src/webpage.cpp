@@ -570,7 +570,9 @@ void WebPage::applySettings(const QVariantMap &def)
     opt->setAttribute(QWebSettings::JavascriptEnabled, def[PAGE_SETTINGS_JS_ENABLED].toBool());
     opt->setAttribute(QWebSettings::XSSAuditingEnabled, def[PAGE_SETTINGS_XSS_AUDITING].toBool());
     opt->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, def[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE].toBool());
+#ifdef HAVE_QWEBSETTINGS_WEBSECURITYENABLED
     opt->setAttribute(QWebSettings::WebSecurityEnabled, def[PAGE_SETTINGS_WEB_SECURITY_ENABLED].toBool());
+#endif
     opt->setAttribute(QWebSettings::JavascriptCanOpenWindows, def[PAGE_SETTINGS_JS_CAN_OPEN_WINDOWS].toBool());
     opt->setAttribute(QWebSettings::JavascriptCanCloseWindows, def[PAGE_SETTINGS_JS_CAN_CLOSE_WINDOWS].toBool());
 
@@ -679,8 +681,11 @@ QVariant WebPage::evaluateJavaScript(const QString &code)
     qDebug() << "WebPage - evaluateJavaScript" << function;
 
     evalResult = m_currentFrame->evaluateJavaScript(
-                function,                                   //< function evaluated
-                QString("phantomjs://webpage.evaluate()")); //< reference source file
+                function                                    //< function evaluated
+#ifdef HAVE_QT_JS_STACK_TRACES
+                , QString("phantomjs://webpage.evaluate()") //< reference source file
+#endif
+                );
 
     qDebug() << "WebPage - evaluateJavaScript result" << evalResult;
 
@@ -821,7 +826,11 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         networkOp = QNetworkAccessManager::DeleteOperation;
 
     if (networkOp == QNetworkAccessManager::UnknownOperation) {
-        m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');", QString());
+        m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');"
+#ifdef HAVE_QT_JS_STACK_TRACES
+                , QString()
+#endif
+                );
         return;
     }
 
@@ -1161,7 +1170,11 @@ bool WebPage::renderPdf(const QString &fileName)
 
     printer.setPageMargins(marginLeft, marginTop, marginRight, marginBottom, QPrinter::Point);
 
+#ifdef HAVE_QWEBFRAME_PRINT_ADDONS
     m_mainFrame->print(&printer, this);
+#else
+    m_mainFrame->print(&printer);
+#endif
     return true;
 }
 
@@ -1180,6 +1193,7 @@ QString WebPage::windowName() const
     return m_mainFrame->evaluateJavaScript("window.name;").toString();
 }
 
+#ifdef HAVE_QWEBFRAME_PRINT_ADDONS
 qreal getHeight(const QVariantMap &map, const QString &key)
 {
     QVariant footer = map.value(key);
@@ -1219,7 +1233,11 @@ QString getHeaderFooter(const QVariantMap &map, const QString &key, QWebFrame *f
             }
         }
     }
-    frame->evaluateJavaScript("console.error('Bad header callback given, use phantom.callback);", QString());
+    frame->evaluateJavaScript("console.error('Bad header callback given, use phantom.callback);"
+#ifdef HAVE_QT_JS_STACK_TRACES
+            , QString()
+#endif
+            );
     return QString();
 }
 
@@ -1232,6 +1250,7 @@ QString WebPage::footer(int page, int numPages)
 {
     return getHeaderFooter(m_paperSize, "footer", m_mainFrame, page, numPages);
 }
+#endif
 
 void WebPage::_uploadFile(const QString &selector, const QStringList &fileNames)
 {
@@ -1255,7 +1274,11 @@ bool WebPage::injectJs(const QString &jsFilePath) {
 }
 
 void WebPage::_appendScriptElement(const QString &scriptUrl) {
-    m_currentFrame->evaluateJavaScript(QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl), scriptUrl);
+    m_currentFrame->evaluateJavaScript(QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl)
+#ifdef HAVE_QT_JS_STACK_TRACES
+            , scriptUrl
+#endif
+            );
 }
 
 QObject *WebPage::_getGenericCallback() {

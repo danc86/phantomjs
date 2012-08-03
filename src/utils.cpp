@@ -119,7 +119,11 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc
         return false;
     }
     // Execute JS code in the context of the document
-    targetFrame->evaluateJavaScript(scriptBody, jsFilePath);
+    targetFrame->evaluateJavaScript(scriptBody
+#ifdef HAVE_QT_JS_STACK_TRACES
+            , jsFilePath
+#endif
+            );
     return true;
 }
 
@@ -138,7 +142,11 @@ bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc,
     targetFrame->setHtml(remoteDebuggerHarnessSrc);
 
     if (autorun) {
-        targetFrame->evaluateJavaScript("__run()", QString());
+        targetFrame->evaluateJavaScript("__run()"
+#ifdef HAVE_QT_JS_STACK_TRACES
+                , QString()
+#endif
+                );
     }
 
     return true;

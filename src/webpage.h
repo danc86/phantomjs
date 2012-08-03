@@ -43,7 +43,10 @@ class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
 
-class WebPage : public QObject, public QWebFrame::PrintCallback
+class WebPage: public QObject
+#ifdef HAVE_QWEBFRAME_PRINT_ADDONS
+    , public QWebFrame::PrintCallback
+#endif
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title)
@@ -128,10 +131,12 @@ public:
 
     void showInspector(const int remotePort = -1);
 
+#ifdef HAVE_QWEBFRAME_PRINT_ADDONS
     QString footer(int page, int numPages);
     qreal footerHeight() const;
     QString header(int page, int numPages);
     qreal headerHeight() const;
+#endif
 
     void setZoomFactor(qreal zoom);
     qreal zoomFactor() const;
