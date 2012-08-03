@@ -32,11 +32,13 @@
 #include "env.h"
 #include "phantom.h"
 
+#ifdef HAVE_BREAKPAD
 #ifdef Q_OS_LINUX
 #include "client/linux/handler/exception_handler.h"
 #endif
 #ifdef Q_OS_MAC
 #include "client/mac/handler/exception_handler.h"
+#endif
 #endif
 
 #include <QApplication>
@@ -65,6 +67,7 @@ Q_IMPORT_PLUGIN(qico)
 
 int main(int argc, char** argv, const char** envp)
 {
+#ifdef HAVE_BREAKPAD
     // Setup Google Breakpad exception handler
 #ifdef Q_OS_LINUX
     google_breakpad::ExceptionHandler eh("/tmp", NULL, Utils::exceptionHandler, NULL, true);
@@ -90,6 +93,7 @@ int main(int argc, char** argv, const char** envp)
         }
         free(szBuffer);
     }
+#endif
 #endif
 
     QApplication app(argc, argv);
