@@ -29,7 +29,7 @@
 
 #include "gifwriter.h"
 
-#include "gif_lib.h"
+#include <gif_lib.h>
 
 #include <QImage>
 #include <QFile>
