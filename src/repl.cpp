@@ -147,7 +147,11 @@ REPL::REPL(QWebFrame *webframe, Phantom *parent)
     linenoiseSetCompletionCallback(REPL::offerCompletion);
 
     // Inject REPL utility functions
-    m_webframe->evaluateJavaScript(Utils::readResourceFileUtf8(":/repl.js"), QString("phantomjs://repl.js"));
+    m_webframe->evaluateJavaScript(Utils::readResourceFileUtf8(":/repl.js")
+#ifdef HAVE_QT_JS_STACK_TRACES
+            , QString("phantomjs://repl.js")
+#endif
+            );
 
     // Add self to JavaScript world
     m_webframe->addToJavaScriptWindowObject("_repl", this);
@@ -184,8 +188,10 @@ void REPL::offerCompletion(const char *buf, linenoiseCompletions *lc)
     QStringList completions = REPL::getInstance()->m_webframe->evaluateJavaScript(
                 QString(JS_RETURN_POSSIBLE_COMPLETIONS).arg(
                     toInspect,
-                    toComplete),
-                QString()
+                    toComplete)
+#ifdef HAVE_QT_JS_STACK_TRACES
+                , QString()
+#endif
                 ).toStringList();
 
     foreach (QString c, completions) {
@@ -210,7 +216,11 @@ void REPL::startLoop()
             // Send the user input to the main Phantom frame for evaluation
             m_webframe->evaluateJavaScript(
                         QString(JS_EVAL_USER_INPUT).arg(
-                            QString(userInput).replace('"', "\\\"")), QString("phantomjs://repl-input"));
+                            QString(userInput).replace('"', "\\\""))
+#ifdef HAVE_QT_JS_STACK_TRACES
+                        , QString("phantomjs://repl-input")
+#endif
+                        );
 
             // Save command in the REPL history
             linenoiseHistoryAdd(userInput);

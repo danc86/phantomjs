@@ -49,8 +49,10 @@ CSConverter::CSConverter()
     : QObject(QCoreApplication::instance())
 {
     m_webPage.mainFrame()->evaluateJavaScript(
-        Utils::readResourceFileUtf8(":/coffee-script/extras/coffee-script.js"),
-        QString("phantomjs://coffee-script/extras/coffee-script.js")
+        Utils::readResourceFileUtf8(":/coffee-script/extras/coffee-script.js")
+#ifdef HAVE_QT_JS_STACK_TRACES
+        , QString("phantomjs://coffee-script/extras/coffee-script.js")
+#endif
     );
     m_webPage.mainFrame()->addToJavaScriptWindowObject("converter", this);
 }
@@ -63,8 +65,10 @@ QVariant CSConverter::convert(const QString &script)
         "    [true, this.CoffeeScript.compile(converter.source)];" \
         "} catch (error) {" \
         "    [false, error.message];" \
-        "}",
-        QString()
+        "}"
+#ifdef HAVE_QT_JS_STACK_TRACES
+        , QString()
+#endif
     );
     return result;
 }
