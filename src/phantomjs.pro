@@ -55,7 +55,7 @@ OTHER_FILES += \
 
 include(gif/gif.pri)
 LIBS += -lmongoose
-include(linenoise/linenoise.pri)
+LIBS += -llinenoise
 include(qcommandline/qcommandline.pri)
 
 win32: RC_FILE = phantomjs_win.rc
