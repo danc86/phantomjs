@@ -8,4 +8,4 @@ require.stub('fs', {
     }
 });
 
-module.exports = require('../coffee-script');
+module.exports = require('/usr/lib/node_modules/coffee-script');
