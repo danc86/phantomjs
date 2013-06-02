@@ -136,7 +136,7 @@ QString WebServer::port() const
 void WebServer::close()
 {
     if (m_ctx) {
-        m_closing = 1;
+        m_closing.store(1);
         {
             // make sure we wake up all pending responses, such that mg_stop()
             // can be called without deadlocking
@@ -157,7 +157,7 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
         return false;
     }
 
-    if (m_closing) {
+    if (m_closing.load()) {
         return false;
     }
 
@@ -244,11 +244,11 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
     responseObject.moveToThread(thread());
 
     {
-        if (m_closing) {
+        if (m_closing.load()) {
             return false;
         }
         QMutexLocker lock(&m_mutex);
-        if (m_closing) {
+        if (m_closing.load()) {
             return false;
         }
         m_pendingResponses << (&responseObject);
@@ -256,11 +256,11 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
     newRequest(requestObject, &responseObject);
     wait.acquire();
     {
-        if (m_closing) {
+        if (m_closing.load()) {
             return false;
         }
         QMutexLocker lock(&m_mutex);
-        if (m_closing) {
+        if (m_closing.load()) {
             return false;
         }
         m_pendingResponses.removeOne(&responseObject);
